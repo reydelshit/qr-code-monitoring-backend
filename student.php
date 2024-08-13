@@ -10,9 +10,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case "GET":
 
-        if (isset($_GET['staff'])) {
-            $sql = "SELECT * FROM users WHERE account_type = 'staff' ORDER BY user_id DESC";
-        }
+
+        $sql = "SELECT * FROM students ORDER BY student_id DESC";
+
 
         if (isset($sql)) {
             $stmt = $conn->prepare($sql);
@@ -82,8 +82,8 @@ switch ($method) {
             $student->student_image_path = null;
         }
 
-        $sql = "INSERT INTO students (student_id, student_id_code, student_image_path, student_name, student_datebirth, student_grade_level, student_program, student_block_section, student_parent_name, student_parent_number, student_parent_email) 
-                    VALUES (:student_id, :student_id_code, :student_image_path, :student_name, :student_datebirth, :student_grade_level, :student_program, :student_block_section, :student_parent_name, :student_parent_number, :student_parent_email)";
+        $sql = "INSERT INTO students (student_id, student_id_code, student_image_path, student_name, student_datebirth, student_address, student_gender, student_grade_level, student_program, student_block_section, student_parent_name, student_parent_number, student_parent_email) 
+                    VALUES (:student_id, :student_id_code, :student_image_path, :student_name, :student_datebirth, :student_address, :student_gender, :student_grade_level, :student_program, :student_block_section, :student_parent_name, :student_parent_number, :student_parent_email)";
         $stmt = $conn->prepare($sql);
 
         $stmt->bindParam(':student_id', $student->student_id);
@@ -91,6 +91,8 @@ switch ($method) {
         $stmt->bindParam(':student_image_path', $student->student_image_path);
         $stmt->bindParam(':student_name', $student->student_name);
         $stmt->bindParam(':student_datebirth', $student->student_datebirth);
+        $stmt->bindParam(':student_address', $student->student_address);
+        $stmt->bindParam(':student_gender', $student->student_gender);
         $stmt->bindParam(':student_grade_level', $student->student_grade_level);
         $stmt->bindParam(':student_program', $student->student_program);
         $stmt->bindParam(':student_block_section', $student->student_block_section);
@@ -116,20 +118,20 @@ switch ($method) {
 
     case "DELETE":
         $user = json_decode(file_get_contents('php://input'));
-        $sql = "DELETE FROM users WHERE user_id = :user_id";
+        $sql = "DELETE FROM students WHERE student_id = :student_id";
         $stmt = $conn->prepare($sql);
 
-        $stmt->bindParam(':user_id', $user->user_id);
+        $stmt->bindParam(':student_id', $user->student_id);
 
         if ($stmt->execute()) {
             $response = [
                 "status" => "success",
-                "message" => "user deleted successfully"
+                "message" => "student_id deleted successfully"
             ];
         } else {
             $response = [
                 "status" => "error",
-                "message" => "user delete failed"
+                "message" => "student_id delete failed"
             ];
         }
 

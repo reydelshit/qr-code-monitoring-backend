@@ -11,16 +11,27 @@ switch ($method) {
     case "GET":
 
 
-        $sql = "SELECT * FROM students ORDER BY student_id DESC";
+        if (!isset($_GET['student_id'])) {
+            $sql = "SELECT * FROM students";
+        }
+
+        if (isset($_GET['student_id'])) {
+            $student_id = $_GET['student_id'];
+            $sql = "SELECT * FROM students WHERE student_id = :student_id";
+        }
 
 
         if (isset($sql)) {
             $stmt = $conn->prepare($sql);
 
-            $stmt->execute();
-            $product = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (isset($student_id)) {
+                $stmt->bindParam(':student_id', $student_id);
+            }
 
-            echo json_encode($product);
+            $stmt->execute();
+            $student = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode($student);
         }
 
 
@@ -109,6 +120,54 @@ switch ($method) {
             $response = [
                 "status" => "error",
                 "message" => "Student creation failed"
+            ];
+        }
+
+        echo json_encode($response);
+        break;
+
+    case "PUT":
+        $student = json_decode(file_get_contents('php://input'));
+        $sql = "UPDATE students 
+                    SET 
+                        student_id_code = :student_id_code,
+                        student_image_path = :student_image_path,
+                        student_name = :student_name,
+                        student_datebirth = :student_datebirth,
+                        student_address = :student_address,
+                        student_gender = :student_gender,
+                        student_grade_level = :student_grade_level,
+                        student_program = :student_program,
+                        student_block_section = :student_block_section,
+                        student_parent_name = :student_parent_name,
+                        student_parent_number = :student_parent_number,
+                        student_parent_email = :student_parent_email
+                    WHERE student_id = :student_id";
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bindParam(':student_id', $student->student_id);
+        $stmt->bindParam(':student_id_code', $student->student_id_code);
+        $stmt->bindParam(':student_image_path', $student->student_image_path);
+        $stmt->bindParam(':student_name', $student->student_name);
+        $stmt->bindParam(':student_datebirth', $student->student_datebirth);
+        $stmt->bindParam(':student_address', $student->student_address);
+        $stmt->bindParam(':student_gender', $student->student_gender);
+        $stmt->bindParam(':student_grade_level', $student->student_grade_level);
+        $stmt->bindParam(':student_program', $student->student_program);
+        $stmt->bindParam(':student_block_section', $student->student_block_section);
+        $stmt->bindParam(':student_parent_name', $student->student_parent_name);
+        $stmt->bindParam(':student_parent_number', $student->student_parent_number);
+        $stmt->bindParam(':student_parent_email', $student->student_parent_email);
+
+        if ($stmt->execute()) {
+            $response = [
+                "status" => "success",
+                "message" => "Student updated successfully"
+            ];
+        } else {
+            $response = [
+                "status" => "error",
+                "message" => "Student update failed"
             ];
         }
 
